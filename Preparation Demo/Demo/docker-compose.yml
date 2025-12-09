@@ -1,0 +1,58 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_web2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./web_data:/usr/share/nginx/html
+    networks:
+      - mynetwork
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mqtt_broker2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto_config:/mosquitto/config
+      - ./mosquitto_data:/mosquitto/data
+      - ./mosquitto_logs:/mosquitto/log
+    networks:
+      - mynetwork
+
+  minecraft:
+    image: itzg/minecraft-server:latest
+    container_name: minecraft_server2
+    environment:
+      EULA: "TRUE"
+      MEMORY: "4G"
+    ports:
+      - "25565:25565"
+    volumes:
+      - ./minecraft_data:/data
+    networks:
+      - mynetwork
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=Canada/Eastern
+      - GENERIC_TIMEZONE=Canada/Eastern
+    networks:
+      - mynetwork
+
+volumes:
+  n8n_data:
+
+networks:
+  mynetwork:
+    driver: bridge
